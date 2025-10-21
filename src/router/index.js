@@ -1,6 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+
+import AdminLayout from '@/layouts/AdminLayout.vue'
+
 import Login from '@/views/Login.vue'
+import HomeView from '@/views/HomeView.vue'
+import Dashboard from '@/views/Dashboard.vue'
 
 const routes = [
   {
@@ -20,6 +24,14 @@ const routes = [
     // this generates a separate chunk (About.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import('../views/AboutView.vue'),
+  },
+  {
+    path: '/admin',
+    component: AdminLayout,
+    children: [
+      { path: 'dashboard', name: 'Dashboard', component: Dashboard },
+      { path: 'room', name: 'Room' },
+    ],
   },
 ]
 
