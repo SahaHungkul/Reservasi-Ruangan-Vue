@@ -6,6 +6,10 @@ import Login from '@/views/Login.vue'
 import HomeView from '@/views/HomeView.vue'
 import Dashboard from '@/views/Dashboard.vue'
 
+import RoomIndex from '@/views/room/RoomIndex.vue'
+import RoomCreate from '@/views/room/RoomCreate.vue'
+import RoomEdit from '@/views/room/RoomEdit.vue'
+
 const routes = [
   {
     path: '/',
@@ -30,7 +34,9 @@ const routes = [
     component: AdminLayout,
     children: [
       { path: 'dashboard', name: 'Dashboard', component: Dashboard },
-      { path: 'room', name: 'Room' },
+      { path: 'room', name: 'RoomIndex', component: RoomIndex },
+      { path: 'room/create', name: 'RoomCreate', component: RoomCreate },
+      { path: 'room/edit', name: 'RoomEdit', component: RoomEdit },
     ],
   },
 ]
@@ -38,6 +44,8 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+  linkActiveClass: 'bg-neutral-400 font-semibold text-white',
+  linkExactActiveClass: 'bg-neutarl-400 font-semibold text-white',
 })
 
 export default router
