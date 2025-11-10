@@ -13,7 +13,7 @@
           </RouterLink>
         </li>
         <li>
-          <RouterLink to="/" class="flex items-center w-full p-2 text-gray-200"
+          <RouterLink :to="{name:'AdminReservation'}" class="flex items-center w-full p-2 text-gray-200"
             active-class="bg-neutral-400 font-semibold text-white" exact-active-class="bg-gray-800 text-white">
             <FileText class="text-inherit" />
             <span class="ml-1 text-xl">Reservasi</span>

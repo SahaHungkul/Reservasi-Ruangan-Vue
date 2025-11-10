@@ -8,7 +8,7 @@
       <Sidebar class="z-30" />
 
       <!-- Konten utama -->
-      <main class="flex-1 p-8 ml-50 transition-all duration-300">
+      <main class="flex-1 p-8 ml-50 mb-20 transition-all duration-300">
         <router-view />
       </main>
     </div>

@@ -16,6 +16,9 @@ import EditUser from '@/views/user/UserEdit.vue'
 
 import FsIndex from '@/views/fixed-schedule/FsIndex.vue'
 
+import AdminReservation from '@/views/reservation/ReservationIndex.vue';
+
+
 const routes = [
   {
     path: '/',
@@ -83,6 +86,11 @@ const routes = [
         name: 'FsIndex',
         component: FsIndex,
       },
+      {
+        path: 'reservations',
+        name: 'AdminReservation',
+        component: AdminReservation,
+      }
     ],
   },
 ]
