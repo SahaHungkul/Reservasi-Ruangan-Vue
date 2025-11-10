@@ -27,13 +27,13 @@
           </RouterLink>
         </li>
         <li>
-          <RouterLink to="/" class="flex items-center p-2 text-gray-200">
+          <RouterLink :to="{ name: 'UserIndex' }" class="flex items-center p-2 text-gray-200">
             <User class="text-inherit" />
             <span class="ml-1 text-xl">User</span>
           </RouterLink>
         </li>
         <li>
-          <RouterLink to="/" class="flex items-center p-2 text-gray-200">
+          <RouterLink :to="{ name: 'FsIndex' }" class="flex items-center p-2 text-gray-200">
             <CalendarRange class="text-inherit" />
             <span class="ml-1 text-xl">Jadwal Tetap</span>
           </RouterLink>

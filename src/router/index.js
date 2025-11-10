@@ -10,7 +10,17 @@ import RoomIndex from '@/views/room/RoomIndex.vue'
 import RoomCreate from '@/views/room/RoomCreate.vue'
 import RoomEdit from '@/views/room/RoomEdit.vue'
 
+import UserIndex from '@/views/user/UserIndex.vue'
+import CreateUser from '@/views/user/UserCreate.vue'
+import EditUser from '@/views/user/UserEdit.vue'
+
+import FsIndex from '@/views/fixed-schedule/FsIndex.vue'
+
 const routes = [
+  {
+    path: '/',
+    redirect: '/login'
+  },
   {
     path: '/',
     name: 'home',
@@ -33,10 +43,46 @@ const routes = [
     path: '/admin',
     component: AdminLayout,
     children: [
-      { path: 'dashboard', name: 'Dashboard', component: Dashboard },
-      { path: 'room', name: 'RoomIndex', component: RoomIndex },
-      { path: 'room/create', name: 'RoomCreate', component: RoomCreate },
-      { path: 'room/edit', name: 'RoomEdit', component: RoomEdit },
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: Dashboard,
+      },
+      {
+        path: 'room',
+        name: 'RoomIndex',
+        component: RoomIndex,
+      },
+      {
+        path: 'room/create',
+        name: 'RoomCreate',
+        component: RoomCreate,
+      },
+      {
+        path: 'room/:id/edit',
+        name: 'RoomEdit',
+        component: RoomEdit,
+      },
+      {
+        path: 'user',
+        name: 'UserIndex',
+        component: UserIndex,
+      },
+      {
+        path: 'user/create',
+        name: 'CreateUser',
+        component: CreateUser,
+      },
+      {
+        path: 'user/:id/edit',
+        name: 'EditUser',
+        component: EditUser,
+      },
+      {
+        path: 'fixed-schedules',
+        name: 'FsIndex',
+        component: FsIndex,
+      },
     ],
   },
 ]

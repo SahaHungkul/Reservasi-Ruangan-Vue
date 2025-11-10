@@ -1,6 +1,34 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/counter.js';
+
+const email = ref('');
+const password = ref('');
+const loading = ref(false);
+const error = ref(null);
+
+const router = useRouter();
+
+const userStore = useUserStore();
+
+const handleLogin = async () =>{
+  loading.value = true;
+  error.value = null;
+  try {
+    const role = await userStore.login(email.value, password.value);
+    if(role === 'admin'){
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/');
+    }
+  }catch(err){
+    error.value = err.message || 'Login failed. Please try again.';
+  } finally {
+    loading.value = false;
+  }
+}
 
 const imageUrl = ref('https://lirp.cdn-website.com/5b0a5aef/dms3rep/multi/opt/modern-interior-meeting-room-marketing-office-with-evening-sunset-empty-large-loft-style-conference-space-with-chairs-tables-furniture-clean-glass-windows-1920w.jpg');
 function handleError() {
@@ -21,12 +49,12 @@ function handleError() {
           Masuk untuk memesan ruang pertemuan
         </p>
 
-        <form class="space-y-6">
+        <form class="space-y-6" @submit.prevent="handleLogin">
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">
-              Username
+              Email
             </label>
-            <input type="text" placeholder="Username"
+            <input v-model="email" type="text" placeholder="email"
               class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700" />
           </div>
 
@@ -39,13 +67,13 @@ function handleError() {
                 Forgot your password?
               </a>
             </div>
-            <input type="password" placeholder="Password"
+            <input v-model="password" type="password" placeholder="Password"
               class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700" />
           </div>
 
-          <button type="button"
-            class="w-full py-3 bg-cyan-700 text-white rounded-md font-medium hover:bg-cyan-800 transition">
-            Login
+          <button type="submit"
+            class="w-full py-3 bg-cyan-700 text-white rounded-md font-medium hover:bg-cyan-800 transition cursor-pointer">
+            {{ loading ? 'Logging in...' : 'Login' }}
           </button>
 
           <div class="flex items-center justify-center space-x-4 mt-6">
