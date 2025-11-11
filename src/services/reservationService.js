@@ -9,8 +9,14 @@ const reservationService = {
   getReservationById(id){
     // console.log("get reservation by")
     return api.get(`/reservations/${id}`);
-  }
-
+  },
+  rejectReservation(id, data){
+    console.log(`Rejecting reservation id: ${id} with data:`, data);
+    return api.patch(`/reservations/${id}/reject`, data);
+  },
+  approveReservation(id,data){
+    return api.patch(`/reservations/${id}/approve`, data);
+  },
 }
 
 export default reservationService;

@@ -6,26 +6,61 @@ import userService from "@/services/UserService";
 
 const users = ref([]);
 const loading = ref(true);
-const error = ref(null);
 
-onMounted(async () => {
+const showPopup = ref(false);
+const popupMode = ref("confirm")
+const selectedId = ref(null);
+const message = ref("");
+
+const fetchUsers = async () => {
   try {
-    const response = await userService.getUsers();
-    users.value = response.data.data ?? response.data; // tergantung struktur response API
+    loading.value = true;
+    const res = await userService.getUsers();
+    users.value = res.data.data ?? res.data;
   } catch (err) {
-    error.value = err.response?.data?.message || err.message;
+    console.error("Gagal memuat data:", err);
   } finally {
     loading.value = false;
   }
-});
+};
 
+const handleDelete = (user) => {
+  selectedId.value = user.id;
+  popupMode.value = "confirm";
+  message.value = "Apakah Anda yakin ingin menghapus user ini?";
+  showPopup.value = true;
+};
+
+const confirmDelete = async () => {
+  try {
+    loading.value = true;
+    await userService.deleteUser(selectedId.value);
+    await fetchUsers();
+
+    popupMode.value = "success";
+    message.value = "User berhasil dihapus.";
+    showPopup.value = true;
+  } catch (err) {
+    console.error("Gagal menghapus user:", err);
+  } finally {
+    loading.value = false;
+    // showPopup.value = false; // Tutup popup apapun hasilnya
+  }
+};
+
+const closePopup = () => {
+  showPopup.value = false;
+};
+onMounted(() => {
+  fetchUsers();
+});
 </script>
 
 <template>
   <div class="space-y-5">
     <h1 class="text-2xl font-bold mb-4 text-black border p-5 rounded-md">Daftar User</h1>
 
-    <RouterLink to="/admin/user/create" class="p-2 flex item-center w-fit bg-blue-500 text-white rounded">
+    <RouterLink to="/admin/user/create" class="p-2 flex item-center gap-1 w-fit bg-blue-500 text-white rounded">
       <UserPlus class="mr-1" />
       Tambah
     </RouterLink>
@@ -52,7 +87,7 @@ onMounted(async () => {
               <div class="flex justify-center gap-2">
                 <RouterLink :to="`/admin/user/${item.id}/edit`" class="bg-blue-600 p-2 rounded text-white">Edit
                 </RouterLink>
-                <button @click="deleteUser(item.id)" class="bg-red-500 rounded text-white p-2 cursor-pointer">
+                <button @click="handleDelete(item)" class="bg-red-500 rounded text-white p-2 cursor-pointer">
                   Delete
                 </button>
               </div>
@@ -60,6 +95,32 @@ onMounted(async () => {
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- POPUP CARD -->
+    <div v-if="showPopup" class="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
+      <div class="bg-gray-100 rounded-lg shadow-lg p-6 w-[380px]">
+        <h2 class="text-lg font-bold mb-2 text-gray-800">Konfirmasi Hapus</h2>
+        <p class="text-gray-700 mb-5">{{ message }}</p>
+
+        <!-- konfirmasi -->
+        <div v-if="popupMode === 'confirm'" class="flex justify-end gap-3">
+          <button @click="confirmDelete" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+            :disabled="loading">{{ loading ? "Menghapus..." : "Hapus" }}</button>
+          <button @click="closePopup"
+            class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition cursor-pointer">
+            Batal
+          </button>
+        </div>
+
+        <!-- success -->
+        <div v-else-if="popupMode === 'success'" class="flex justify-end">
+          <button @click="closePopup"
+            class="bg-cyan-700 text-gray-800 px-4 py-2 rounded hover:bg-cyan-800 transition cursor-pointer">
+            Oke
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 

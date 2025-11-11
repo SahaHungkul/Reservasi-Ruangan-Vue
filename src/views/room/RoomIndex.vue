@@ -1,23 +1,111 @@
 <script setup>
 import Footer from '@/components/Footer.vue'
 import { HousePlus } from 'lucide-vue-next';
-
 import { ref, onMounted } from "vue";
 import roomService from "@/services/RoomService";
+// import Swal from "sweetalert2";
 
 const rooms = ref([]);
 const loading = ref(true);
-const error = ref(null);
 
-onMounted(async () => {
+const showPopup = ref(false);
+const popupMode = ref(''); // 'confirm' | 'error'
+const selectedId = ref(null);
+const message = ref("");
+
+
+const fetchRooms = async () => {
   try {
-    const response = await roomService.getRooms();
-    rooms.value = response.data.data ?? response.data; // tergantung struktur response API
+    loading.value = true;
+    const res = await roomService.getRooms();
+    rooms.value = res.data.data ?? res.data;
   } catch (err) {
-    error.value = err.response?.data?.message || err.message;
+    console.error("Gagal memuat data:", err);
   } finally {
     loading.value = false;
   }
+};
+
+
+const handleDelete = (room) => {
+  selectedId.value = room.id;
+
+  if (room.status === 'active') {
+    // Jika ruangan aktif → langsung tampil error popup
+    popupMode.value = 'error';
+    message.value = "Ruangan ini sedang aktif atau sudah dibooking, sehingga tidak dapat dihapus.";
+    showPopup.value = true;
+  } else {
+    // Jika ruangan tidak aktif → tampil popup konfirmasi
+    popupMode.value = 'confirm';
+    message.value = "Apakah Anda yakin ingin menghapus ruangan ini?";
+    showPopup.value = true;
+  }
+};
+
+const confirmDelete = async () => {
+  try {
+    await roomService.deleteRoom(selectedId.value);
+    await fetchRooms();
+  } catch (err) {
+    console.error("Gagal menghapus:", err);
+    popupMode.value = 'error';
+    message.value =
+      err.response?.data?.message ||
+      "Ruangan ini sedang aktif atau sudah dibooking, sehingga tidak dapat dihapus.";
+    showPopup.value = true;
+  } finally {
+    showPopup.value = false;
+  }
+};
+
+// Tutup popup
+const closePopup = () => {
+  showPopup.value = false;
+};
+
+// const handleDelete = async (id) => {
+//   const confirm = await Swal.fire({
+//     title: "Yakin ingin menghapus?",
+//     text: "Data ruangan akan dihapus permanen!",
+//     icon: "warning",
+//     showCancelButton: true,
+//     confirmButtonColor: "#0e7490", //
+//     cancelButtonColor: "#d33",
+//     confirmButtonText: "Ya, hapus!",
+//     cancelButtonText: "Batal",
+//   });
+
+//   if (!confirm.isConfirmed) return;
+
+//   try {
+//     await roomService.deleteRoom(id);
+//     Swal.fire({
+//       title: "Berhasil!",
+//       text: "Ruangan berhasil dihapus.",
+//       icon: "success",
+//       confirmButtonColor: "#0e7490",
+//     });
+//     fetchRooms(); // refresh data
+//   } catch (err) {
+//     console.error("❌ Gagal menghapus:", err);
+
+//     // Jika backend kirim pesan error (misalnya karena ruangan aktif)
+//     const msg =
+//       err.response?.data?.message ||
+//       "Ruangan ini sedang aktif atau sudah dibooking, sehingga tidak dapat dihapus.";
+
+//     Swal.fire({
+//       title: "Tidak dapat dihapus!",
+//       text: msg,
+//       icon: "error",
+//       confirmButtonColor: "#0e7490",
+//       confirmButtonText: "Oke",
+//     });
+//   }
+// };
+onMounted(() => {
+  fetchRooms();
 });
 </script>
 
@@ -29,7 +117,6 @@ onMounted(async () => {
       <HousePlus class="mr-1" />
       Tambah
     </RouterLink>
-
     <div class="overflow-x-auto bg-white shadow-sm border border-gray-200 mt-4">
       <table class="min-w-full text-sm text-gray-700">
         <thead class="bg-cyan-700 text-white">
@@ -47,17 +134,66 @@ onMounted(async () => {
             <td class="text-center py-3">{{ i + 1 }}</td>
             <td class="text-center py-3">{{ room.name }}</td>
             <td class="text-center py-3">{{ room.capacity }}</td>
-            <td class="text-center py-3">{{ room.description }}</td>
-            <td class="text-center py-3">{{ room.status }}</td>
+            <td class="text-center py-3">{{ room.description ||'-'}}</td>
+            <td class="text-center py-3">
+              <span :class="room.status === 'active' ? 'bg-green-500' : 'bg-red-500'"
+                class="text-white px-3 py-1 rounded text-sm">
+                {{ room.status_label }}
+              </span>
+            </td>
             <td class="text-center py-3">
               <div class="flex justify-center gap-2">
-                <RouterLink :to="`/admin/room/${room.id}/edit`" class="bg-blue-600 p-2 rounded text-white">Edit</RouterLink>
-                <button class="bg-red-500 rounded text-white p-2 cursor-pointer">Delete</button>
+                <RouterLink :to="`/admin/room/${room.id}/edit`" class="bg-blue-600 p-2 rounded text-white">
+                  Edit
+                </RouterLink>
+                <button @click="handleDelete(room)"
+                  class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transition cursor-pointer">
+                  Hapus
+                </button>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- POPUP CARD -->
+    <div
+    v-if="showPopup"
+    class="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50"
+    >
+      <div class="bg-gray-100 rounded-lg shadow-lg p-6 w-[380px]">
+        <h2 class="text-lg font-bold mb-2 text-gray-800">
+          {{ popupMode === 'error' ? 'Tidak dapat dihapus!' : 'Konfirmasi Hapus' }}
+        </h2>
+        <p class="text-gray-700 mb-5">{{ message }}</p>
+
+        <!-- Jika mode konfirmasi -->
+        <div v-if="popupMode === 'confirm'" class="flex justify-end gap-3">
+          <button
+            @click="confirmDelete"
+            class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+          >
+            Hapus
+          </button>
+          <button
+            @click="closePopup"
+            class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition"
+          >
+            Batal
+          </button>
+        </div>
+
+        <!-- Jika mode error -->
+        <div v-else class="flex justify-end">
+          <button
+            @click="closePopup"
+            class="bg-cyan-700 text-white px-4 py-2 rounded hover:bg-cyan-800 transition"
+          >
+            Oke
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 

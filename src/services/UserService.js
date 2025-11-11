@@ -6,7 +6,7 @@ const userService = {
     return api.get("/users");
   },
 
-  getUsersById(id){
+  getUserById(id){
     console.log(`fetch user data for id: ${id}`);
     return api.get(`/users/${id}`);
   },
