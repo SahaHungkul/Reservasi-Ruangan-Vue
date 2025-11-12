@@ -31,12 +31,10 @@ const handleDelete = (room) => {
   selectedId.value = room.id;
 
   if (room.status === 'active') {
-    // Jika ruangan aktif → langsung tampil error popup
     popupMode.value = 'error';
     message.value = "Ruangan ini sedang aktif atau sudah dibooking, sehingga tidak dapat dihapus.";
     showPopup.value = true;
   } else {
-    // Jika ruangan tidak aktif → tampil popup konfirmasi
     popupMode.value = 'confirm';
     message.value = "Apakah Anda yakin ingin menghapus ruangan ini?";
     showPopup.value = true;
@@ -47,6 +45,10 @@ const confirmDelete = async () => {
   try {
     await roomService.deleteRoom(selectedId.value);
     await fetchRooms();
+
+    popupMode.value = 'success';
+    message.value = "Data ruangan tersebut telah berhasil dihapus"
+    showPopup.value = true;
   } catch (err) {
     console.error("Gagal menghapus:", err);
     popupMode.value = 'error';
@@ -54,8 +56,6 @@ const confirmDelete = async () => {
       err.response?.data?.message ||
       "Ruangan ini sedang aktif atau sudah dibooking, sehingga tidak dapat dihapus.";
     showPopup.value = true;
-  } finally {
-    showPopup.value = false;
   }
 };
 
@@ -134,7 +134,7 @@ onMounted(() => {
             <td class="text-center py-3">{{ i + 1 }}</td>
             <td class="text-center py-3">{{ room.name }}</td>
             <td class="text-center py-3">{{ room.capacity }}</td>
-            <td class="text-center py-3">{{ room.description ||'-'}}</td>
+            <td class="text-center py-3">{{ room.description || '-' }}</td>
             <td class="text-center py-3">
               <span :class="room.status === 'active' ? 'bg-green-500' : 'bg-red-500'"
                 class="text-white px-3 py-1 rounded text-sm">
@@ -158,38 +158,41 @@ onMounted(() => {
     </div>
 
     <!-- POPUP CARD -->
-    <div
-    v-if="showPopup"
-    class="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50"
-    >
+    <div v-if="showPopup" class="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
       <div class="bg-gray-100 rounded-lg shadow-lg p-6 w-[380px]">
-        <h2 class="text-lg font-bold mb-2 text-gray-800">
-          {{ popupMode === 'error' ? 'Tidak dapat dihapus!' : 'Konfirmasi Hapus' }}
+
+        <!-- Judul (tampil hanya di confirm & error) -->
+        <h2 v-if="popupMode === 'confirm'" class="text-lg font-bold mb-2 text-gray-800">
+          Konfirmasi Hapus
         </h2>
+        <h2 v-else-if="popupMode === 'error'" class="text-lg font-bold mb-2 text-red-700">
+          Tidak dapat dihapus!
+        </h2>
+
+        <!-- Pesan -->
         <p class="text-gray-700 mb-5">{{ message }}</p>
 
-        <!-- Jika mode konfirmasi -->
+        <!-- Tombol: mode konfirmasi -->
         <div v-if="popupMode === 'confirm'" class="flex justify-end gap-3">
-          <button
-            @click="confirmDelete"
-            class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
-          >
-            Hapus
+          <button @click="confirmDelete" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+            :disabled="loading">
+            {{ loading ? "Menghapus..." : "Hapus" }}
           </button>
-          <button
-            @click="closePopup"
-            class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition"
-          >
+          <button @click="closePopup" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition">
             Batal
           </button>
         </div>
 
-        <!-- Jika mode error -->
-        <div v-else class="flex justify-end">
-          <button
-            @click="closePopup"
-            class="bg-cyan-700 text-white px-4 py-2 rounded hover:bg-cyan-800 transition"
-          >
+        <!-- Tombol: mode sukses -->
+        <div v-else-if="popupMode === 'success'" class="flex justify-end">
+          <button @click="closePopup" class="bg-cyan-700 text-white px-4 py-2 rounded hover:bg-cyan-800 transition">
+            Oke
+          </button>
+        </div>
+
+        <!-- Tombol: mode error -->
+        <div v-else-if="popupMode === 'error'" class="flex justify-end">
+          <button @click="closePopup" class="bg-cyan-700 text-white px-4 py-2 rounded hover:bg-cyan-800 transition">
             Oke
           </button>
         </div>

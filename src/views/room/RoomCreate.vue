@@ -3,10 +3,8 @@ import { ref } from "vue";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useRouter } from 'vue-router';
 import roomService from "@/services/RoomService";
-//  CardHeader, CardTitle, CardDescription,
 
 const router = useRouter();
-
 const name = ref('');
 const capacity = ref('');
 const description = ref('');

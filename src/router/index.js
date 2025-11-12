@@ -15,6 +15,8 @@ import CreateUser from '@/views/user/UserCreate.vue'
 import EditUser from '@/views/user/UserEdit.vue'
 
 import FsIndex from '@/views/fixed-schedule/FsIndex.vue'
+import FixedScheduleCreate from '@/views/fixed-schedule/FsCreate.vue'
+import FixedScheduleEdit from '@/views/fixed-schedule/FsEdit.vue'
 
 import AdminReservation from '@/views/reservation/ReservationIndex.vue';
 
@@ -85,6 +87,16 @@ const routes = [
         path: 'fixed-schedules',
         name: 'FsIndex',
         component: FsIndex,
+      },
+      {
+        path: 'fixed-schedules/create',
+        name: 'FsCreate',
+        component: FixedScheduleCreate,
+      },
+      {
+        path: 'fixed-schedules/:id/edit',
+        name: 'FsEdit',
+        component: FixedScheduleEdit,
       },
       {
         path: 'reservations',

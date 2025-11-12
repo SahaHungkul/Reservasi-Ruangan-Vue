@@ -6,17 +6,17 @@ const fixedSchedulesService = {
     return api.get("/fixed-schedules");
   },
 
-  getFsById(id){
+  getFixedScheduleById(id){
     return api.get(`/fixed-schedules/${id}`);
   },
 
-  createFs(data){
+  createFixedSchedule(data){
     return api.post("/fixed-schedules",data);
   },
-  updateFs(id,data){
+  updateFixedSchedule(id,data){
     return api.put(`/fixed-schedules/${id}`,data);
   },
-  destroyFs(id){
+  destroyFixedSchedule(id){
     return api.delete(`/fixed-schedules/${id}`);
   }
 }

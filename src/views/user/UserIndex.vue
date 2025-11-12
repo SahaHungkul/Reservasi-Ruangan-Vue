@@ -38,7 +38,7 @@ const confirmDelete = async () => {
     await fetchUsers();
 
     popupMode.value = "success";
-    message.value = "User berhasil dihapus.";
+    message.value = "Data user tersebut telah berhasil dihapus.";
     showPopup.value = true;
   } catch (err) {
     console.error("Gagal menghapus user:", err);
@@ -100,7 +100,7 @@ onMounted(() => {
     <!-- POPUP CARD -->
     <div v-if="showPopup" class="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
       <div class="bg-gray-100 rounded-lg shadow-lg p-6 w-[380px]">
-        <h2 class="text-lg font-bold mb-2 text-gray-800">Konfirmasi Hapus</h2>
+        <h2 v-if="popupMode === 'confirm'" class="text-lg font-bold mb-2 text-gray-800">Konfirmasi Hapus</h2>
         <p class="text-gray-700 mb-5">{{ message }}</p>
 
         <!-- konfirmasi -->
@@ -116,7 +116,7 @@ onMounted(() => {
         <!-- success -->
         <div v-else-if="popupMode === 'success'" class="flex justify-end">
           <button @click="closePopup"
-            class="bg-cyan-700 text-gray-800 px-4 py-2 rounded hover:bg-cyan-800 transition cursor-pointer">
+            class="bg-cyan-700 text-white px-4 py-2 rounded hover:bg-cyan-800 transition cursor-pointer">
             Oke
           </button>
         </div>
