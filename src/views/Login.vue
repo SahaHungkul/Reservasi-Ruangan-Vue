@@ -13,17 +13,17 @@ const router = useRouter();
 
 const userStore = useUserStore();
 
-const handleLogin = async () =>{
+const handleLogin = async () => {
   loading.value = true;
   error.value = null;
   try {
     const role = await userStore.login(email.value, password.value);
-    if(role === 'admin'){
+    if (role === 'admin') {
       router.push('/admin/dashboard');
     } else {
-      router.push('/');
+      router.push('/home');
     }
-  }catch(err){
+  } catch (err) {
     error.value = err.message || 'Login failed. Please try again.';
   } finally {
     loading.value = false;

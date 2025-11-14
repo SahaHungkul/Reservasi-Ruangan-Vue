@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import AdminLayout from '@/layouts/AdminLayout.vue'
+import KaryawanLayout from '@/layouts/KaryawanLayout.vue'
 
 import Login from '@/views/Login.vue'
 import HomeView from '@/views/HomeView.vue'
@@ -18,19 +19,14 @@ import FsIndex from '@/views/fixed-schedule/FsIndex.vue'
 import FixedScheduleCreate from '@/views/fixed-schedule/FsCreate.vue'
 import FixedScheduleEdit from '@/views/fixed-schedule/FsEdit.vue'
 
-import AdminReservation from '@/views/reservation/ReservationIndex.vue';
-
+import AdminReservation from '@/views/reservation/ReservationIndex.vue'
 
 const routes = [
   {
     path: '/',
-    redirect: '/login'
+    redirect: '/login',
   },
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView,
-  },
+
   {
     path: '/login',
     name: 'Login',
@@ -102,7 +98,18 @@ const routes = [
         path: 'reservations',
         name: 'AdminReservation',
         component: AdminReservation,
-      }
+      },
+    ],
+  },
+  {
+    path: '/',
+    component: KaryawanLayout,
+    children: [
+      {
+        path: '/home',
+        name: 'home',
+        component: HomeView,
+      },
     ],
   },
 ]

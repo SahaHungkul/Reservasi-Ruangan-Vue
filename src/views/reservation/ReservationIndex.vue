@@ -89,6 +89,29 @@ const showSuccesCard = (msg) => {
   alert(msg);
 };
 
+const laporanReservations = async () => {
+  try {
+    const res = await reservationService.laporanReservasi()
+
+    const blob = new Blob([res.data],{
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+
+    a.href = url
+    a.download = "reservations.xlsx" // nama file yang diunduh
+    document.body.appendChild(a)
+    a.click()
+
+    // bersihkan object URL
+    window.URL.revokeObjectURL(url)
+  } catch (err) {
+    console.error("Gagal mengunduh laporan:", err);
+  }
+}
+
 onMounted(() => {
   fetchReservation();
   fetchRooms();
@@ -112,7 +135,9 @@ onMounted(() => {
       <button class="bg-cyan-700 p-2 flex items-center rounded text-white mr-2">
         <CalendarPlus class="mr-1" /> Pilih Tanggal
       </button>
-      <button class="bg-cyan-700 p-2 rounded text-white">Export Laporan (CSV/Excel)</button>
+      <button @click="laporanReservations" class="bg-cyan-700 p-2 rounded text-white cursor-pointer">
+        Export Laporan
+        (CSV/Excel)</button>
     </div>
 
     <!-- ✅ tabel -->
@@ -131,12 +156,13 @@ onMounted(() => {
           <tr v-for="r in reservations" :key="r.id">
             <td class="text-center py-3">{{ new Date(r.date).toISOString().slice(0, 10) }}</td>
             <td class="text-center py-3">{{ r.room?.name }}</td>
-            <td class="text-center py-3">{{ r.start_time?.slice(0,5) }} - {{ r.end_time?.slice(0,5) }}</td>
+            <td class="text-center py-3">{{ r.start_time?.slice(0, 5) }} - {{ r.end_time?.slice(0, 5) }}</td>
             <td class="text-center py-3">{{ r.status }}</td>
             <td class="text-center py-3">
               <div class="flex justify-center gap-2">
                 <!-- ✅ tombol Setujui -->
-                <button @click="openPopup(r.id, 'approve')" class="bg-green-500 rounded text-white p-2 hover:bg-green-600">
+                <button @click="openPopup(r.id, 'approve')"
+                  class="bg-green-500 rounded text-white p-2 hover:bg-green-600">
                   Setujui
                 </button>
                 <!-- ✅ tombol Tolak -->
@@ -151,37 +177,25 @@ onMounted(() => {
     </div>
 
     <!-- ✅ Popup dinamis -->
-    <div
-      v-if="showPopup"
-      class="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50"
-    >
+    <div v-if="showPopup" class="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
       <div class="bg-gray-100 rounded-lg shadow-lg p-6 w-[380px]">
         <h2 class="text-lg font-bold mb-3 text-gray-800">
-          {{ popupMode === 'reject' ? 'Apakah Anda yakin ingin menolak reservasi ini?' : 'Apakah Anda yakin ingin menyetujui reservasi ini?' }}
+          {{ popupMode === 'reject' ? 'Apakah Anda yakin ingin menolak reservasi ini?' : 'Apakah Anda yakin inginmenyetujui reservasi ini?' }}
         </h2>
 
         <!-- ✅ tampilkan alasan hanya jika mode tolak -->
         <div v-if="popupMode === 'reject'">
           <label class="block text-sm text-gray-700 mb-1">Alasan penolakan?</label>
-          <textarea
-            v-model="reason"
-            rows="3"
+          <textarea v-model="reason" rows="3"
             class="w-full border border-gray-300 rounded-md px-3 py-2 mb-5 focus:outline-none focus:ring-2 focus:ring-cyan-700"
-            placeholder="Tulis alasan..."
-          ></textarea>
+            placeholder="Tulis alasan..."></textarea>
         </div>
 
         <div class="flex justify-end gap-3">
-          <button
-            @click="handleSubmit"
-            class="bg-cyan-700 text-white px-4 py-2 rounded hover:bg-cyan-800 transition"
-          >
+          <button @click="handleSubmit" class="bg-cyan-700 text-white px-4 py-2 rounded hover:bg-cyan-800 transition">
             {{ popupMode === 'reject' ? 'Kirim' : 'Setujui' }}
           </button>
-          <button
-            @click="closePopup"
-            class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition"
-          >
+          <button @click="closePopup" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition">
             Batal
           </button>
         </div>

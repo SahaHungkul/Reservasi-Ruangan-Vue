@@ -6,12 +6,18 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-
 import Avatar from "./ui/avatar/Avatar.vue";
-
+import { useUserStore } from "@/stores/counter";
+import { useRouter } from "vue-router";
 defineProps({
   isOpen: Boolean
-})
+});
+const router = useRouter();
+const userStore = useUserStore();
+function handleLogout(){
+  userStore.logout();
+  router.push({name:"Login"})
+}
 </script>
 <template>
   <header
@@ -57,7 +63,7 @@ defineProps({
         <DropdownMenuItem>
           <RouterLink to="/profile">Profile</RouterLink>
         </DropdownMenuItem>
-        <DropdownMenuItem @click="logout">Logout</DropdownMenuItem>
+        <DropdownMenuItem @click="handleLogout">Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   </header>

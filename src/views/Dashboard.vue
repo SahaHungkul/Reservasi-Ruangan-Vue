@@ -25,7 +25,13 @@ const stats = ref({
 })
 const chartData = ref({
   labels: [],
-  datasets: []
+  datasets: [{
+    label: 'Reservasi',
+    data: [],
+    backgroundColor: '#0e7490',
+    borderRadius: 8,
+    barThickness: 40
+  }]
 })
 
 const chartOptions = {
@@ -40,12 +46,15 @@ const chartOptions = {
     y: { beginAtZero: true }
   }
 }
-
+const chartKey =ref(0);
 const fetchDashboard = async () => {
   try {
     loading.value = true
     const res = await dashboardService.getDashboard()
     const data = res.data.data ?? res.data
+
+    console.log('Full response:', res.data)
+    console.log('Chart data:', data.chart_data)
 
     stats.value = {
       total_reservasi: data.total_reservasi ?? 0,
@@ -58,7 +67,8 @@ const fetchDashboard = async () => {
     const bulan = data.chart_data?.map(item => item.bulan) ?? []
     const jumlah = data.chart_data?.map(item => item.jumlah) ?? []
 
-    console.log(data.chart_data);
+    console.log('Bulan:', bulan)
+    console.log('Jumlah:', jumlah)
 
     chartData.value = {
       labels: bulan,
@@ -72,13 +82,14 @@ const fetchDashboard = async () => {
         }
       ]
     }
+    chartKey.value++
+    console.log('Final chartData:', chartData.value)
   } catch (err) {
     console.error('Gagal mengambil data dashboard:', err)
   } finally {
     loading.value = false
   }
 }
-
 onMounted(fetchDashboard)
 </script>
 
@@ -103,8 +114,17 @@ onMounted(fetchDashboard)
     <!-- Grafik Statistik Reservasi Bulanan -->
     <div class="bg-white rounded-lg shadow p-6">
       <h3 class="text-lg font-semibold mb-4 text-gray-800">Statistik Reservasi Bulanan</h3>
-      <div class="w-full h-[400px]">
+
+      <div v-if="loading" class="w-full h-[400px] flex items-center justify-center">
+        <p class="text-gray-500">Memuat data...</p>
+      </div>
+
+      <div v-else-if="chartData.labels.length > 0" class="w-full h-[400px]">
         <Bar :data="chartData" :options="chartOptions" />
+      </div>
+
+      <div v-else class="w-full h-[400px] flex items-center justify-center">
+        <p class="text-gray-500">Tidak ada data untuk ditampilkan</p>
       </div>
     </div>
   </div>
